@@ -1,28 +1,23 @@
--- Parking Detection Foundation Schema (PostgreSQL)
--- Tables: lots, spaces, space_status
--- Designed to support API endpoints for:
---   - current occupancy by lot
---   - summary stats by lot
---   - health check
---   - status updates (single + batch)
-
 CREATE TABLE IF NOT EXISTS lots (
-  lot_id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL
+  lot_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS spaces (
-  space_id SERIAL PRIMARY KEY,
-  lot_id INT NOT NULL REFERENCES lots(lot_id) ON DELETE CASCADE,
-  label TEXT NOT NULL,                -- e.g., "A1", "A2"
-  polygon JSONB NOT NULL              -- store ROI polygon coordinates as JSON
+  space_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  lot_id INTEGER NOT NULL,
+  label TEXT NOT NULL,
+  polygon TEXT NOT NULL,
+  FOREIGN KEY (lot_id) REFERENCES lots(lot_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS space_status (
-  space_id INT PRIMARY KEY REFERENCES spaces(space_id) ON DELETE CASCADE,
-  occupied BOOLEAN NOT NULL DEFAULT FALSE,
+  space_id INTEGER PRIMARY KEY,
+  occupied INTEGER NOT NULL DEFAULT 0,
   confidence REAL,
-  last_updated TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  last_updated TEXT,
+  FOREIGN KEY (space_id) REFERENCES spaces(space_id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_spaces_lot_id ON spaces(lot_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_spaces_lot_label ON spaces(lot_id, label);

@@ -5,19 +5,21 @@ Organized project structure for the parking spot detection foundation API.
 ## Structure
 
 - `app/app.py` - Flask API with health, occupancy, summary, and status update endpoints
-- `database/schema.sql` - PostgreSQL schema for lots, spaces, and space status
-- `database/seed.sql` - Optional seed data for a demo lot and sample spaces
-- `Dockerfile` - Python API container definition
-- `docker-compose.yml` - Local development stack with Postgres and the API
+- `database/schema.sql` - Database schema for lots, spaces, and space status
+- `database/seed.sql` - Seed data for a demo lot and sample spaces
 - `requirements.txt` - Python dependencies
 
-## Run with Docker
+## Run with Python Virtual Environment
 
 ```bash
-docker compose up --build
+python -m venv env
+pip install -r requirements.txt
+python app.py
+
+To test car detection with yolo12n.pt on CPU: python inference.py
 ```
 
-The API runs on port `5000` and Postgres runs on `5432`.
+The API runs on port `5000`
 
 ## Suggested next steps
 
