@@ -12,6 +12,7 @@ Organized project structure for the parking spot detection foundation API.
 ## Run with Python Virtual Environment
 
 ```bash
+cd app
 python -m venv env
 pip install -r requirements.txt
 python app.py
