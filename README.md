@@ -9,13 +9,11 @@ Organized project structure for the parking spot detection foundation API.
 - `database/seed.sql` - Optional seed data for a demo lot and sample spaces
 - `Dockerfile` - Python API container definition
 - `docker-compose.yml` - Local development stack with Postgres and the API
-- `.env.example` - Example environment variables for local runs
 - `requirements.txt` - Python dependencies
 
 ## Run with Docker
 
 ```bash
-cp .env.example .env
 docker compose up --build
 ```
 
