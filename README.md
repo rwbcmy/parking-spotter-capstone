@@ -22,6 +22,16 @@ To test car detection with yolo12n.pt on CPU: python inference.py
 
 The API runs on port `5000`
 
+## Frontend Setup
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+To see live dashboard: http://localhost:5173
+
 ## Suggested next steps
 
 - Add camera ingestion and YOLO inference code under `app/`
