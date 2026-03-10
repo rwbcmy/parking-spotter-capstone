@@ -3,10 +3,12 @@ import os
 import sqlite3
 from datetime import datetime, timezone
 from typing import Any, Dict, List
+from flask_cors import CORS
 
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
+CORS(app)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATABASE_PATH = os.getenv("DATABASE_PATH", os.path.join(BASE_DIR, "database", "parking.db"))
@@ -36,6 +38,10 @@ def init_db():
             conn.executescript(f.read())
 
         conn.commit()
+
+@app.get("/")
+def home():
+    return jsonify({"message": "Parking API is running. Frontend using port 5173."})
 
 
 @app.get("/health")
