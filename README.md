@@ -20,7 +20,7 @@ python app.py
 To test car detection with yolo12n.pt on CPU: python inference.py
 ```
 
-The API runs on port `5000`
+The API runs on port `8080`
 
 ## Suggested next steps
 
