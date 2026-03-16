@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import './App.css';
+import { useState, useEffect } from "react";
+import "./App.css";
 
 function App() {
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/lots/1/summary')
-      .then(res => res.json())
-      .then(data => setStats(data))
-      .catch(err => console.error("Database connection failed:", err));
+    fetch("http://127.0.0.1:8080/lots/1/summary")
+      .then((res) => res.json())
+      .then((data) => setStats(data))
+      .catch((err) => console.error("Database connection failed:", err));
   }, []);
 
   return (
