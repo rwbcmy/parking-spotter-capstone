@@ -2,15 +2,19 @@ import os
 import json
 import cv2
 import numpy as np
+import requests
 from ultralytics import YOLO
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
 VIDEO_PATH = os.getenv("VIDEO_PATH", os.path.join(BASE_DIR, "videos", "Car-Parking.mp4"))
-MODEL_PATH = os.getenv("MODEL_PATH", os.path.join(APP_DIR, "yolo26x-seg.pt"))
+MODEL_PATH = os.getenv("MODEL_PATH", os.path.join(APP_DIR, "yolo11x-seg.pt"))
 PARKING_SPOTS_PATH = os.path.join(APP_DIR, "parking_spots.json")
 OUTPUT_VIDEO_PATH = os.path.join(APP_DIR, "parking_output.mp4")
+
+API_BASE = os.getenv("API_BASE", "http://127.0.0.1:8080")
+LOT_ID = int(os.getenv("LOT_ID", "1"))
 
 
 
@@ -25,6 +29,46 @@ def load_parking_spots():
     return data.get("spots", [])
 
 
+def fetch_space_ids():
+    """Fetch {label -> space_id} mapping from the Flask API."""
+    try:
+        resp = requests.get(f"{API_BASE}/lots/{LOT_ID}/occupancy", timeout=3)
+        resp.raise_for_status()
+        spaces = resp.json().get("spaces", [])
+        # Map by position: annotator spot id 1 = first space in DB, etc.
+        return {i + 1: s["space_id"] for i, s in enumerate(spaces)}
+    except Exception as e:
+        print(f"[WARN] Could not fetch space IDs from API: {e}")
+        return {}
+
+
+def post_occupancy(space_id_map, occupancy: dict):
+    """POST per-spot occupancy to /lots/{LOT_ID}/status_batch.
+
+    occupancy: {annotator_spot_id: bool}
+    """
+    if not space_id_map:
+        return
+
+    updates = [
+        {"space_id": space_id_map[ann_id], "occupied": is_occ}
+        for ann_id, is_occ in occupancy.items()
+        if ann_id in space_id_map
+    ]
+
+    if not updates:
+        return
+
+    try:
+        requests.post(
+            f"{API_BASE}/lots/{LOT_ID}/status_batch",
+            json={"updates": updates},
+            timeout=2,
+        )
+    except Exception as e:
+        print(f"[WARN] Failed to post occupancy: {e}")
+
+
 def main():
     model = YOLO(MODEL_PATH)
     cap = cv2.VideoCapture(VIDEO_PATH)
@@ -37,6 +81,12 @@ def main():
 
     parking_spots = load_parking_spots()
     has_parking_spots = parking_spots is not None and len(parking_spots) > 0
+
+    space_id_map = fetch_space_ids()
+    if space_id_map:
+        print(f"Loaded {len(space_id_map)} space IDs from API: {space_id_map}")
+    else:
+        print("[WARN] No space ID mapping — occupancy won't be sent to the API.")
 
     frame_skip = 2
     frame_count = 0
@@ -126,6 +176,8 @@ def main():
                     ])
                 scaled_spots.append(np.array(polygon, dtype=np.int32))
 
+            frame_occupancy = {}
+
             for idx, spot in enumerate(scaled_spots, start=1):
                 spot_mask = np.zeros((new_h, new_w), dtype=np.uint8)
                 cv2.fillPoly(spot_mask, [spot], 1)
@@ -137,6 +189,8 @@ def main():
                     if overlap / spot_area > 0.15:
                         is_occupied = True
                         break
+
+                frame_occupancy[idx] = is_occupied
 
                 color = (0, 255, 0)
                 if is_occupied:
@@ -158,6 +212,8 @@ def main():
 
             total_spaces = len(scaled_spots)
             available_spaces = total_spaces - occupied_spaces
+
+            post_occupancy(space_id_map, frame_occupancy)
         else:
             total_spaces = 0
             available_spaces = 0
