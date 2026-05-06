@@ -11,11 +11,11 @@ from ultralytics import YOLO
 
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_SEG_MODEL_PATH = os.path.join(APP_DIR, "yolo11x-seg.pt")
+DEFAULT_SEG_MODEL_PATH = os.path.join(APP_DIR, "yolo26n-seg.pt")
 DEFAULT_MODEL_PATH = (
     DEFAULT_SEG_MODEL_PATH
     if os.path.exists(DEFAULT_SEG_MODEL_PATH)
-    else os.path.join(APP_DIR, "yolo26n.pt")
+    else os.path.join(APP_DIR, "yolo26n-seg.pt")
 )
 MODEL_PATH = os.getenv("MODEL_PATH", DEFAULT_MODEL_PATH)
 LATEST_FRAME_PATH = os.path.join(APP_DIR, "latest_frame.jpg")
