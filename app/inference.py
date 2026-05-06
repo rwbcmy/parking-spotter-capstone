@@ -9,6 +9,8 @@ import numpy as np
 import requests
 from ultralytics import YOLO
 
+from occupancy_state import OccupancySmoother
+
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_SEG_MODEL_PATH = os.path.join(APP_DIR, "yolo26n-seg.pt")
@@ -36,7 +38,7 @@ FRAME_FETCH_TIMEOUT = float(os.getenv("FRAME_FETCH_TIMEOUT", "8"))
 CONFIG_REFRESH_SECONDS = float(os.getenv("CONFIG_REFRESH_SECONDS", "5"))
 WORKER_LOOP_DELAY_SECONDS = float(os.getenv("WORKER_LOOP_DELAY_SECONDS", "0.2"))
 FRAME_WIDTH = int(os.getenv("FRAME_WIDTH", "640"))
-OCCUPIED_HOLD_SECONDS = float(os.getenv("OCCUPIED_HOLD_SECONDS", "0.8"))
+OCCUPANCY_CONFIRM_SECONDS = float(os.getenv("OCCUPANCY_CONFIRM_SECONDS", "3.0"))
 
 
 @dataclass
@@ -90,40 +92,6 @@ def get_detection_frame_path(lot_id: int):
 def write_frame(path: str, frame):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     cv2.imwrite(path, frame)
-
-
-class OccupancySmoother:
-    def __init__(self, hold_seconds: float):
-        self.hold_seconds = max(0.0, float(hold_seconds))
-        self.space_state: Dict[int, Dict[str, Any]] = {}
-
-    def apply(self, space_ids: List[int], raw_occupancy: Dict[int, bool]):
-        now = time.time()
-        active_space_ids = set(space_ids)
-        self.space_state = {
-            space_id: self.space_state.get(
-                space_id,
-                {"occupied": False, "last_seen_ts": 0.0},
-            )
-            for space_id in active_space_ids
-        }
-
-        smoothed_occupancy: Dict[int, bool] = {}
-        for space_id in space_ids:
-            state = self.space_state[space_id]
-            is_occupied = bool(raw_occupancy.get(space_id, False))
-
-            if is_occupied:
-                state["occupied"] = True
-                state["last_seen_ts"] = now
-            elif state["occupied"] and now - state["last_seen_ts"] < self.hold_seconds:
-                is_occupied = True
-            else:
-                state["occupied"] = False
-
-            smoothed_occupancy[space_id] = is_occupied
-
-        return smoothed_occupancy
 
 
 def score_vehicle_spot(spot: np.ndarray, spot_mask: np.ndarray, vehicle: dict):
@@ -402,11 +370,25 @@ def fetch_frame_for_lot(lot_id: int):
     return frame
 
 
-def post_occupancy(lot_id: int, spaces: List[Dict[str, Any]], occupancy_by_space_id: Dict[int, bool]):
-    updates = [
-        {"space_id": space["space_id"], "occupied": bool(occupancy_by_space_id.get(space["space_id"], False))}
-        for space in spaces
-    ]
+def build_occupancy_updates(
+    spaces: List[Dict[str, Any]],
+    occupancy_by_space_id: Dict[int, bool],
+    last_posted_occupancy: Dict[int, bool] | None,
+):
+    updates = []
+
+    for space in spaces:
+        space_id = space["space_id"]
+        occupied = bool(occupancy_by_space_id.get(space_id, False))
+        if last_posted_occupancy is None or last_posted_occupancy.get(space_id) != occupied:
+            updates.append({"space_id": space_id, "occupied": occupied})
+
+    return updates
+
+
+def post_occupancy(lot_id: int, updates: List[Dict[str, Any]]):
+    if not updates:
+        return
 
     requests.post(
         f"{API_BASE}/lots/{lot_id}/status_batch",
@@ -420,7 +402,8 @@ class LotDetectorWorker:
         self.config = config
         self.config_lock = threading.Lock()
         self.stop_event = threading.Event()
-        self.occupancy_smoother = OccupancySmoother(OCCUPIED_HOLD_SECONDS)
+        self.occupancy_smoother = OccupancySmoother(OCCUPANCY_CONFIRM_SECONDS)
+        self.last_posted_occupancy: Dict[int, bool] | None = None
         self.thread = threading.Thread(
             target=self._run,
             daemon=True,
@@ -441,6 +424,7 @@ class LotDetectorWorker:
         with self.config_lock:
             self.config = config
             self.last_signature = config.signature
+            self.last_posted_occupancy = None
 
     def get_config(self):
         with self.config_lock:
@@ -471,7 +455,16 @@ class LotDetectorWorker:
                     occupancy_by_space_id,
                 )
                 occupied_spaces = draw_space_overlays(annotated_frame, scaled_spaces, smoothed_occupancy)
-                post_occupancy(config.lot_id, config.spaces, smoothed_occupancy)
+                updates = build_occupancy_updates(
+                    config.spaces,
+                    smoothed_occupancy,
+                    self.last_posted_occupancy,
+                )
+                post_occupancy(config.lot_id, updates)
+                self.last_posted_occupancy = {
+                    space["space_id"]: bool(smoothed_occupancy.get(space["space_id"], False))
+                    for space in config.spaces
+                }
                 write_frame(
                     get_detection_frame_path(config.lot_id),
                     draw_vehicle_overlays(original_frame, detected_vehicles),
