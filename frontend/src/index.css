@@ -1,0 +1,1137 @@
+:root {
+  font-family: "Segoe UI", sans-serif;
+  color: #111827;
+  background: #08111e;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  min-width: 320px;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.map-app,
+.map-stage,
+.world-map-shell,
+.world-map {
+  min-height: 100vh;
+}
+
+.map-app {
+  background: #08111e;
+}
+
+.map-stage {
+  position: relative;
+}
+
+.map-toolbar {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: rgba(8, 17, 30, 0.78);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+}
+
+.map-toolbar__title {
+  display: grid;
+  gap: 2px;
+}
+
+.map-toolbar__title span {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.92rem;
+}
+
+.map-toolbar__actions,
+.diagram-panel__actions,
+.lot-editor__actions,
+.admin-panel__actions,
+.world-map__controls {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.mode-button,
+.button-primary,
+.button-secondary,
+.button-danger,
+.map-control {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.9);
+  color: #111827;
+  border-radius: 999px;
+  padding: 10px 14px;
+}
+
+.mode-button--active,
+.button-primary {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.button-danger {
+  background: #fff1f2;
+  color: #be123c;
+  border-color: rgba(190, 18, 60, 0.16);
+}
+
+.map-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  color: white;
+}
+
+.world-map-shell {
+  position: relative;
+}
+
+.world-map {
+  position: relative;
+  overflow: hidden;
+  background: #07101a;
+  cursor: grab;
+  touch-action: none;
+}
+
+.world-map--drawing {
+  cursor: crosshair;
+}
+
+.world-map:active {
+  cursor: grabbing;
+}
+
+.world-map__tiles,
+.world-map__overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.world-map__tile {
+  position: absolute;
+  width: 256px;
+  height: 256px;
+  object-fit: cover;
+  user-select: none;
+}
+
+.world-map__overlay {
+  pointer-events: none;
+}
+
+.world-map__lot,
+.world-map__draft {
+  position: absolute;
+  border-radius: 12px;
+}
+
+.world-map__lot {
+  pointer-events: auto;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  background: rgba(245, 158, 11, 0.18);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+.world-map__lot span {
+  position: absolute;
+  top: -32px;
+  left: 0;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(8, 17, 30, 0.82);
+  color: white;
+  white-space: nowrap;
+}
+
+.world-map__lot--active {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.18);
+}
+
+.world-map__lot--focus {
+  border-color: #60a5fa;
+}
+
+.world-map__draft {
+  border: 2px dashed white;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.world-map__hud {
+  position: fixed;
+  top: 92px;
+  right: 16px;
+  z-index: 50;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.world-map__status {
+  display: grid;
+  gap: 4px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: rgba(8, 17, 30, 0.78);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+}
+
+.world-map__status--search {
+  min-width: min(560px, calc(100vw - 32px));
+  max-width: min(560px, calc(100vw - 32px));
+}
+
+.world-map__status span {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.92rem;
+}
+
+.world-map__search {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.world-map__search-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.92);
+  color: #111827;
+}
+
+.world-map__results {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.world-map__result {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+}
+
+.world-map__search-message {
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.9rem;
+}
+
+.map-control {
+  background: rgba(8, 17, 30, 0.78);
+  color: white;
+  min-width: 38px;
+  min-height: 38px;
+  padding: 8px 10px;
+}
+
+.map-control--wide {
+  min-width: 74px;
+}
+
+.world-map__controls {
+  position: static;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.world-map__controls .map-control {
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.admin-panel,
+.diagram-panel,
+.lot-editor {
+  position: fixed;
+  z-index: 55;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
+  border-radius: 24px;
+  overflow: auto;
+}
+
+.admin-panel {
+  top: 92px;
+  left: 16px;
+  width: 320px;
+  bottom: 420px;
+  padding: 18px;
+}
+
+.diagram-panel {
+  top: 92px;
+  left: 16px;
+  bottom: 16px;
+  width: min(420px, calc(100vw - 32px));
+  padding: 18px;
+}
+
+.diagram-panel--popup {
+  position: static;
+  width: 100%;
+  max-width: 420px;
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.lot-editor {
+  top: 92px;
+  left: 352px;
+  right: 16px;
+  bottom: auto;
+  height: min(calc(100vh - 124px), 820px);
+  padding: 18px;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 14px;
+}
+
+.admin-panel__header,
+.diagram-panel__header,
+.lot-editor__header,
+.lot-editor__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-panel__header,
+.diagram-panel__header,
+.lot-editor__header {
+  margin-bottom: 14px;
+}
+
+.lot-editor__header {
+  margin-bottom: 0;
+}
+
+.admin-panel h2,
+.diagram-panel h2,
+.lot-editor h2 {
+  margin: 4px 0 0;
+}
+
+.admin-panel p,
+.diagram-panel p,
+.lot-editor p,
+.admin-hint,
+.admin-message,
+.lot-editor__empty {
+  margin: 0;
+  color: #64748b;
+}
+
+.admin-lot-list,
+.lot-editor__spot-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-lot-list {
+  margin-bottom: 14px;
+}
+
+.admin-lot-button,
+.spot-list-button {
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  background: #f8fafc;
+}
+
+.admin-lot-button--active,
+.spot-list-button--active {
+  background: #dbeafe;
+  border-color: #60a5fa;
+}
+
+.admin-form,
+.lot-editor__fields {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-form label,
+.lot-editor__fields label {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-checkbox {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-checkbox input {
+  width: auto;
+}
+
+.admin-form input,
+.lot-editor__fields input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  background: white;
+}
+
+.admin-panel__actions {
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.admin-hint,
+.admin-message {
+  margin-top: 12px;
+}
+
+.lot-editor__body {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 14px;
+  height: 100%;
+  min-height: 0;
+}
+
+.lot-editor__column {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-height: 0;
+}
+
+.lot-editor__column--wide {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+
+.lot-editor__column--sidebar {
+  grid-template-rows: auto auto auto;
+}
+
+.lot-editor__workspace {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-content: start;
+  min-height: 0;
+}
+
+.lot-editor__section {
+  display: grid;
+  gap: 8px;
+}
+
+.lot-editor__canvas-card {
+  min-height: 0;
+  grid-template-rows: auto auto auto;
+}
+
+.lot-editor__section-header--stacked {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lot-editor__camera-tools {
+  display: grid;
+  gap: 6px;
+}
+
+.lot-editor__badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #075985;
+  font-weight: 600;
+}
+
+.lot-editor__helper {
+  color: #64748b;
+  font-size: 0.84rem;
+  text-align: left;
+}
+
+.lot-editor__section-header {
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.lot-editor__section-header span {
+  color: #64748b;
+  font-size: 0.92rem;
+  text-align: left;
+}
+
+.lot-editor__status-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lot-editor__status-pill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.lot-editor__status-pill--active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.lot-editor__header-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lot-editor__select-group {
+  display: grid;
+  gap: 10px;
+}
+
+.lot-editor__select-field {
+  display: grid;
+  gap: 6px;
+}
+
+.lot-editor__select-field select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  background: white;
+}
+
+.lot-editor__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lot-editor__toolbar-group,
+.lot-editor__zoom-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.lot-editor__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #334155;
+  font-size: 0.92rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lot-editor__toggle input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.lot-editor__zoom-controls input {
+  width: 160px;
+}
+
+.lot-editor__zoom-value {
+  min-width: 52px;
+  color: #0f172a;
+  text-align: right;
+}
+
+.lot-editor__actions--spaced {
+  justify-content: flex-start;
+}
+
+.lot-editor__actions--wrap {
+  flex-wrap: wrap;
+}
+
+.lot-editor__diagram-tools {
+  display: grid;
+  gap: 8px;
+}
+
+.lot-editor__diagram-view {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lot-editor__diagram-tools--inline {
+  grid-template-columns: 1fr;
+}
+
+.lot-editor__slider-field {
+  display: grid;
+  gap: 6px;
+}
+
+.lot-editor__slider-field strong {
+  color: #0f172a;
+  font-size: 0.9rem;
+}
+
+.lot-editor__slider-field--inline {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.lot-editor__slider-field--inline strong,
+.lot-editor__slider-field--inline span {
+  white-space: nowrap;
+}
+
+.lot-editor__fields--compact {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  align-content: start;
+}
+
+.lot-editor__fields--compact label:first-child {
+  grid-column: 1 / -1;
+}
+
+.lot-editor__fields--compact input,
+.lot-editor__select-field select {
+  padding: 8px 10px;
+}
+
+.diagram-canvas,
+.camera-match {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #616d78;
+}
+
+.diagram-canvas {
+  min-height: 360px;
+}
+
+.diagram-canvas--compact {
+  min-height: 252px;
+}
+
+.diagram-canvas__hud {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.diagram-canvas__counts {
+  display: inline-flex;
+  gap: 10px;
+}
+
+.diagram-canvas__count {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.diagram-canvas__count--open {
+  color: #22c55e;
+}
+
+.diagram-canvas__count--occupied {
+  color: #ef4444;
+}
+
+.diagram-canvas__count--unknown {
+  color: #d1d5db;
+}
+
+.diagram-canvas__close {
+  pointer-events: auto;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.diagram-canvas--editor {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  min-height: 0;
+  max-height: 500px;
+  height: auto;
+  cursor: grab;
+  touch-action: none;
+}
+
+.diagram-canvas--editor:active {
+  cursor: grabbing;
+}
+
+.diagram-viewport {
+  position: absolute;
+  background: #616d78;
+}
+
+.lot-design-surface,
+.lot-design-surface__asphalt,
+.lot-design-surface__row,
+.lot-design-surface__center-line,
+.diagram-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.lot-design-surface {
+  background: #616d78;
+  overflow: hidden;
+}
+
+.lot-design-surface__asphalt {
+  background: #616d78;
+}
+
+.diagram-space {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  color: white;
+  font-weight: 700;
+  background: rgba(15, 23, 42, 0.22);
+  transform-origin: center;
+  touch-action: none;
+}
+
+.diagram-space span {
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+}
+
+.diagram-space--open {
+  background: rgba(34, 197, 94, 0.76);
+}
+
+.diagram-space--occupied {
+  background: rgba(239, 68, 68, 0.78);
+}
+
+.diagram-space--unknown {
+  background: rgba(148, 163, 184, 0.74);
+}
+
+.diagram-space--selected {
+  outline: 3px solid #facc15;
+  z-index: 3;
+}
+
+.camera-match {
+  min-height: 0;
+  background: #0f172a;
+  display: grid;
+}
+
+.camera-match--editor {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  min-height: 0;
+  max-height: 500px;
+  height: auto;
+}
+
+.camera-match--modal {
+  min-height: 0;
+}
+
+.camera-match__viewport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.camera-match__frame {
+  position: relative;
+  min-width: 0;
+  margin: 0 auto;
+  line-height: 0;
+}
+
+.camera-match__frame--mapping {
+  cursor: crosshair;
+}
+
+.world-map__lot-popup {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 12px));
+  z-index: 12;
+  pointer-events: auto;
+}
+
+.world-map__lot-popup::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  width: 18px;
+  height: 18px;
+  background: #616d78;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.camera-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+}
+
+.camera-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.74);
+}
+
+.camera-modal__panel {
+  position: relative;
+  width: min(96vw, 1760px);
+  max-height: 94vh;
+  padding: 20px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 14px;
+  overflow: hidden;
+}
+
+.camera-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.camera-modal__header span {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+}
+
+.camera-modal__body {
+  display: grid;
+  grid-template-columns: minmax(210px, 240px) minmax(0, 1fr);
+  gap: 12px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.camera-modal__controls {
+  display: grid;
+  gap: 12px;
+  overflow: auto;
+  min-height: 0;
+  padding-right: 4px;
+}
+
+.camera-modal__controls-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.camera-modal__fields {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+}
+
+.camera-modal__fields label {
+  display: grid;
+  gap: 6px;
+}
+
+.camera-modal__fields input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  background: white;
+}
+
+.camera-modal__body .camera-match {
+  min-height: 0;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  aspect-ratio: 16 / 9;
+  align-self: center;
+}
+
+.camera-modal__body .camera-match__viewport {
+  max-height: none;
+  overflow: hidden;
+}
+
+.camera-match__image,
+.diagram-camera__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: none;
+}
+
+.camera-match__overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.camera-polygon {
+  fill: rgba(34, 197, 94, 0.12);
+  stroke: #22c55e;
+  stroke-width: 3;
+}
+
+.camera-polygon--selected {
+  fill: rgba(250, 204, 21, 0.18);
+  stroke: #facc15;
+}
+
+.camera-polygon--draft {
+  fill: none;
+  stroke-dasharray: 12 8;
+}
+
+.camera-polygon__label {
+  fill: white;
+  font-size: 22px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  paint-order: stroke;
+  stroke: rgba(15, 23, 42, 0.9);
+  stroke-width: 6px;
+}
+
+.camera-polygon__point {
+  fill: #facc15;
+  stroke: white;
+  stroke-width: 3;
+}
+
+.camera-polygon__point-label {
+  fill: white;
+  font-size: 18px;
+  font-weight: 700;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: rgba(15, 23, 42, 0.9);
+  stroke-width: 5px;
+}
+
+.diagram-camera {
+  margin-top: 16px;
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+@media (max-width: 1100px) {
+  .admin-panel {
+    bottom: auto;
+  }
+
+  .lot-editor {
+    max-height: none;
+    position: static;
+    margin: 16px;
+    min-height: 0;
+    height: auto;
+    gap: 16px;
+  }
+
+  .lot-editor__body,
+  .lot-editor__workspace,
+  .lot-editor__column--wide {
+    grid-template-columns: 1fr;
+  }
+
+  .diagram-panel {
+    position: static;
+    left: auto;
+    width: auto;
+    margin: 16px;
+  }
+}
+
+@media (max-width: 900px) {
+  .map-toolbar {
+    position: static;
+    margin: 16px;
+  }
+
+  .admin-panel,
+  .diagram-panel {
+    position: static;
+    width: auto;
+    margin: 16px;
+  }
+
+  .world-map__hud {
+    position: static;
+    margin: 16px;
+    flex-wrap: wrap;
+    flex-direction: row;
+  }
+
+  .world-map__controls {
+    position: static;
+    display: inline-flex;
+  }
+
+  .world-map__status--search {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .world-map__search {
+    flex-wrap: wrap;
+  }
+
+  .camera-modal__panel {
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+    padding: 14px;
+  }
+
+  .camera-modal__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .camera-modal__controls-header {
+    flex-direction: column;
+  }
+
+  .lot-editor__toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .lot-editor__fields--compact,
+  .lot-editor__slider-field--inline {
+    grid-template-columns: 1fr;
+  }
+
+  .lot-editor__body,
+  .lot-editor__workspace {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+@media (max-width: 760px) {
+  .camera-modal__body {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+
+  .camera-modal__controls {
+    overflow: visible;
+    padding-right: 0;
+  }
+}
